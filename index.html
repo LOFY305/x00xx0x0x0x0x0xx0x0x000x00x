@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>خطوة لحل المشاكل - R56</title>
+  <meta name="description" content="موقع R56 المخصص لحل المشاكل التقنية وتقديم الدعم الفني">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+    
+    :root {
+      --primary-red: #ff0000;
+      --secondary-red: #cc0000;
+      --dark-red: #aa0000;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #1a0a0a;
+      --bg-card: rgba(30, 30, 30, 0.9);
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --text-muted: #999999;
+      --border-color: rgba(255, 0, 0, 0.2);
+      --glass-bg: rgba(20, 20, 20, 0.8);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', 'Segoe UI', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      direction: rtl;
+      overflow-x: hidden;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Loading Animation */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255, 0, 0, 0.1);
+      border-top: 3px solid var(--primary-red);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Header Navigation */
+    .header {
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 15px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-color);
+      transition: var(--transition);
+    }
+
+    .header.scrolled {
+      background: rgba(0, 0, 0, 0.98);
+      box-shadow: 0 8px 32px rgba(255, 0, 0, 0.1);
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      gap: 20px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    .logo-icon {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, var(--primary-red), var(--secondary-red));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+      transition: var(--transition);
+    }
+
+    .logo:hover .logo-icon {
+      box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
+      transform: rotate(10deg);
+    }
+
+    .logo .red-text {
+      color: var(--primary-red);
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 25px;
+      align-items: center;
+    }
+
+    .nav-item a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 10px 18px;
+      border-radius: 8px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-item a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .nav-item a:hover::before {
+      left: 100%;
+    }
+
+    .nav-item a:hover {
+      color: var(--primary-red);
+      background: rgba(255, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* Mobile Menu Toggle */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 8px;
+      gap: 4px;
+    }
+
+    .menu-toggle span {
+      width: 25px;
+      height: 3px;
+      background: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    .menu-toggle.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menu-toggle.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* Order Input Modal */
+    .order-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(15px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .order-modal.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .order-modal-content {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      padding: 50px;
+      border-radius: 25px;
+      border: 2px solid rgba(255, 0, 0, 0.3);
+      max-width: 550px;
+      width: 90%;
+      text-align: center;
+      transform: scale(0.9) translateY(30px);
+      transition: var(--transition);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .order-modal.show .order-modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    .order-modal-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary-red);
+      margin-bottom: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      background: none;
+      border: none;
+      color: var(--primary-red);
+      font-size: 2.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      line-height: 1;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .close-modal:hover {
+      color: #ff4444;
+      background: rgba(255, 0, 0, 0.1);
+      transform: rotate(90deg);
+    }
+
+    .modal-input-container {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .order-modal input[type="text"] {
+      width: 100%;
+      padding: 25px;
+      font-size: 1.6rem;
+      font-family: 'Cairo', sans-serif;
+      border: 2px solid rgba(255, 0, 0, 0.3);
+      border-radius: 20px;
+      outline: none;
+      background: rgba(44, 44, 44, 0.9);
+      color: var(--text-primary);
+      transition: var(--transition);
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 3px;
+    }
+
+    .order-modal input[type="text"]::placeholder {
+      color: rgba(170, 68, 68, 0.7);
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+
+    .order-modal input[type="text"]:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+      background: rgba(44, 44, 44, 1);
+      transform: scale(1.02);
+    }
+
+    .modal-message {
+      font-weight: 600;
+      min-height: 2em;
+      color: #ff5555;
+      text-align: center;
+      font-size: 1.2rem;
+      transition: var(--transition);
+      opacity: 0;
+      transform: translateY(15px);
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .modal-message.error {
+      color: #ff4444;
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.2);
+      animation: shake 0.6s ease-in-out;
+    }
+
+    .modal-message.success {
+      color: #44ff44;
+      background: rgba(68, 255, 68, 0.1);
+      border: 1px solid rgba(68, 255, 68, 0.2);
+    }
+
+    .modal-message.info {
+      color: #4488ff;
+      background: rgba(68, 136, 255, 0.1);
+      border: 1px solid rgba(68, 136, 255, 0.2);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, var(--primary-red), var(--secondary-red)) !important;
+      color: white !important;
+      padding: 12px 25px !important;
+      border-radius: 30px !important;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .login-btn:hover::before {
+      left: 100%;
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(135deg, var(--secondary-red), var(--dark-red)) !important;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+    }
+
+    /* Main Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 20px 50px;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, #000 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 0, 0, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 60% 80%, rgba(255, 0, 0, 0.05) 0%, transparent 40%);
+      z-index: 1;
+      animation: pulse 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      100% { opacity: 1; }
+    }
+
+    .hero-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-content {
+      animation: slideInRight 1s ease-out;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .hero-content h1 {
+      font-size: 3.8rem;
+      font-weight: 900;
+      margin-bottom: 25px;
+      line-height: 1.2;
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-content .highlight {
+      background: linear-gradient(135deg, var(--primary-red), #ff4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+    }
+
+    .hero-description {
+      font-size: 1.3rem;
+      color: var(--text-secondary);
+      margin-bottom: 45px;
+      line-height: 1.8;
+      font-weight: 400;
+    }
+
+    .cta-button {
+      background: linear-gradient(135deg, var(--primary-red), var(--secondary-red));
+      color: white;
+      padding: 18px 45px;
+      border: none;
+      border-radius: 35px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .cta-button:hover::before {
+      left: 100%;
+    }
+
+    .cta-button:hover {
+      background: linear-gradient(135deg, var(--secondary-red), var(--dark-red));
+      transform: translateY(-4px);
+      box-shadow: 0 12px 35px rgba(255, 0, 0, 0.6);
+    }
+
+    /* Character Image */
+    .hero-image {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      animation: slideInLeft 1s ease-out;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .character-placeholder {
+      width: 450px;
+      height: 550px;
+      background: linear-gradient(135deg, rgba(255, 0, 0, 0.25), rgba(255, 0, 0, 0.1));
+      border-radius: 25px;
+      border: 2px solid rgba(255, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: var(--primary-red);
+      backdrop-filter: blur(15px);
+      box-shadow: 0 25px 50px rgba(255, 0, 0, 0.3);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .character-placeholder::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+      animation: rotate 3s linear infinite;
+    }
+
+    @keyframes rotate {
+      to { transform: rotate(360deg); }
+    }
+
+    .character-placeholder:hover {
+      transform: translateY(-15px) rotateY(5deg);
+      box-shadow: 0 35px 70px rgba(255, 0, 0, 0.4);
+    }
+
+    /* Tabs Section */
+    .tabs-section {
+      background: rgba(15, 15, 15, 0.95);
+      padding: 80px 20px;
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .tabs-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tabs-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .tabs-nav {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 50px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 18px 35px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 0, 0, 0.3);
+      border-radius: 30px;
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'Cairo', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .tab-btn:hover::before {
+      left: 100%;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 0, 0, 0.1);
+      border-color: var(--primary-red);
+      color: var(--primary-red);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 0, 0, 0.2);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(255, 0, 0, 0.1));
+      border-color: var(--primary-red);
+      color: var(--primary-red);
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .tab-content {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      padding: 50px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      display: none;
+      animation: fadeInUp 0.6s ease-out;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeInUp {
+      from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      }
+    }
+
+    .tab-content h3 {
+      color: var(--primary-red);
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      text-align: center;
+      font-weight: 700;
+      position: relative;
+    }
+
+    .tab-content h3::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary-red), transparent);
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 40px;
+    }
+
+    .video-item {
+      background: rgba(40, 40, 40, 0.9);
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.05), transparent);
+      transition: left 0.8s ease;
+    }
+
+    .video-item:hover::before {
+      left: 100%;
+    }
+
+    .video-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.3);
+      border-color: rgba(255, 0, 0, 0.5);
+    }
+
+    .video-item h4 {
+      color: #ff6666;
+      margin-bottom: 20px;
+      font-weight: 700;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .video-item iframe {
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      transition: var(--transition);
+    }
+
+    .video-item:hover iframe {
+      transform: scale(1.02);
+    }
+
+    .video-item p {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      background: rgba(20, 20, 20, 0.8);
+      padding: 20px;
+      border-radius: 12px;
+      border-right: 4px solid var(--primary-red);
+    }
+
+    .download-link {
+      display: inline-block;
+      margin-top: 30px;
+      padding: 18px 40px;
+      background: linear-gradient(135deg, var(--primary-red), var(--secondary-red));
+      color: #fff;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: 0 10px 25px rgba(255, 0, 0, 0.4);
+      transition: var(--transition);
+      text-align: center;
+      display: block;
+      width: fit-content;
+      margin: 30px auto 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s ease;
+    }
+
+    .download-link:hover::before {
+      left: 100%;
+    }
+
+    .download-link:hover {
+      background: linear-gradient(135deg, var(--secondary-red), var(--dark-red));
+      transform: translateY(-4px);
+      box-shadow: 0 15px 35px rgba(255, 0, 0, 0.6);
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-red), #ff4444);
+      z-index: 9999;
+      transition: width 0.3s ease;
+    }
+
+    /* Notification Toast */
+    .toast {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: var(--glass-bg);
+      color: var(--text-primary);
+      padding: 15px 25px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      transform: translateX(400px);
+      transition: var(--transition);
+      z-index: 1500;
+      backdrop-filter: blur(10px);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      border-color: rgba(68, 255, 68, 0.5);
+      color: #44ff44;
+    }
+
+    .toast.error {
+      border-color: rgba(255, 68, 68, 0.5);
+      color: #ff4444;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+      .nav-container {
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      
+      .video-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: flex;
+      }
+      
+      .nav-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.98);
+        flex-direction: column;
+        gap: 0;
+        padding: 20px;
+        border-top: 1px solid var(--border-color);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+      }
+      
+      .nav-menu.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      .nav-item {
+        width: 100%;
+      }
+      
+      .nav-item a {
+        width: 100%;
+        justify-content: center;
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+      }
+      
+      .hero-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+      }
+      
+      .hero-content h1 {
+        font-size: 2.8rem;
+      }
+      
+      .character-placeholder {
+        width: 350px;
+        height: 400px;
+        font-size: 3.5rem;
+      }
+      
+      .tabs-nav {
+        gap: 20px;
+      }
+      
+      .tab-btn {
+        padding: 15px 25px;
+        font-size: 1rem;
+      }
+      
+      .tab-content {
+        padding: 30px 20px;
+      }
+      
+      .video-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+      }
+      
+      .order-modal-content {
+        padding: 35px 25px;
+      }
+      
+      .order-modal-title {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-container {
+        padding: 0 15px;
+      }
+      
+      .logo {
+        font-size: 1.5rem;
+      }
+      
+      .logo-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2rem;
+      }
+      
+      .hero {
+        padding: 100px 15px 30px;
+      }
+      
+      .hero-content h1 {
+        font-size: 2.2rem;
+      }
+      
+      .hero-description {
+        font-size: 1.1rem;
+      }
+      
+      .character-placeholder {
+        width: 280px;
+        height: 320px;
+        font-size: 2.5rem;
+      }
+      
+      .cta-button {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+      }
+      
+      .tabs-section {
+        padding: 50px 15px;
+      }
+      
+      .tab-content h3 {
+        font-size: 2rem;
+      }
+      
+      .order-modal-content {
+        margin: 20px;
+        padding: 30px 20px;
+      }
+      
+      .order-modal input[type="text"] {
+        padding: 20px;
+        font-size: 1.4rem;
+      }
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      .header, .order-modal, .loading {
+        display: none !important;
+      }
+      
+      body {
+        background: white !important;
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar" id="progressBar"></div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Header -->
+  <header class="header" id="header">
+    <nav class="nav-container">
+      <a href="#" class="logo" aria-label="الصفحة الرئيسية">
+        <div class="logo-icon" aria-hidden="true">🔧</div>
+        <span>R<span class="red-text">56</span></span>
+      </a>
+      
+      <div class="menu-toggle" id="menuToggle" aria-label="قائمة التنقل">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      
+      <ul class="nav-menu" id="navMenu">
+        <li class="nav-item">
+          <a href="#" id="orderBtn" aria-label="تحميل الملفات">
+            <span>📥</span> تحميل
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" id="tutorialsBtn" aria-label="عرض الشروحات العامة">
+            <span>📚</span> شروحات عامة
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="https://discord.gg/R56" target="_blank" rel="noopener noreferrer" aria-label="انضم إلى دسكورد">
+            <button class="login-btn">
+              <span>💬</span> دخول الدسكورد
+            </button>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Hero Section -->
+  <section class="hero" id="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1>مرحباً بك في <span class="highlight">R56!</span></h1>
+        <p class="hero-description">
+          الموقع هذا مخصص لحل مشاكلك يا عميلنا العزيز. 
+          كل الذي عليك أن تتبع الخطوات وتذهب للقسم الذي تحتاجه.
+          نحن هنا لنساعدك في حل جميع المشاكل التقنية بأفضل الطرق.
+        </p>
+
+        <a href="https://r56n.com/" target="_blank" rel="noopener noreferrer" class="cta-button" aria-label="اشتري الآن من المتجر">
+          🛒 اشتري الآن
+        </a>
+      </div>
+      
+      <div class="hero-image">
+        <div class="character-placeholder" aria-label="شخصية تمثيلية">
+          🤖
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Order Input Modal -->
+  <div class="order-modal" id="orderModal" role="dialog" aria-labelledby="orderModalTitle" aria-hidden="true">
+    <div class="order-modal-content">
+      <button class="close-modal" id="closeModal" aria-label="إغلاق النافذة">&times;</button>
+      <div class="order-modal-title" id="orderModalTitle">
+        📋 اكتب رقم الطلب
+      </div>
+      <div class="modal-input-container">
+        <input
+          id="orderNumber"
+          type="text"
+          inputmode="numeric"
+          maxlength="9"
+          autocomplete="off"
+          placeholder="( أدخل رقم الطلب )"
+          aria-label="يجب الإدخال رقم الطلب هنا"
+          aria-describedby="message"
+        />
+      </div>
+      <p id="message" class="modal-message" role="alert" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <!-- Tabs Section -->
+  <section class="tabs-section" id="tabsSection" aria-labelledby="tabsSectionTitle">
+    <div class="tabs-container">
+      <h2 id="tabsSectionTitle" class="sr-only">أقسام المساعدة والدعم</h2>
+      
+      <div class="tabs-nav" role="tablist" aria-label="أقسام المحتوى">
+        <button class="tab-btn active" data-tab="tutorials" role="tab" aria-selected="true" aria-controls="tutorials">
+          📚 شروحات عامة
+        </button>
+        <button class="tab-btn" data-tab="errors" role="tab" aria-selected="false" aria-controls="errors">
+          ⚠️ أخطاء
+        </button>
+        <button class="tab-btn" data-tab="discord" role="tab" aria-selected="false" aria-controls="discord">
+          💬 دسكورد
+        </button>
+      </div>
+
+      <div class="tab-content active" id="tutorials" role="tabpanel" aria-labelledby="tutorials-tab">
+        <h3>📖 شروحات عامة</h3>
+        <div class="video-grid">
+          <div class="video-item">
+            <h4>🛡️ تعطيل حماية ويندوز 10</h4>
+            <iframe 
+              width="100%" 
+              height="280" 
+              src="https://www.youtube.com/embed/PynR5SbiYmk" 
+              title="تعطيل حماية ويندوز 10" 
+              frameborder="0" 
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+            <p>دليل خطوة بخطوة لكيفية تعطيل حماية ويندوز ديفندر في ويندوز 10 بشكل مؤقت لتثبيت البرامج والملفات المطلوبة دون مشاكل.</p>
+          </div>
+          
+          <div class="video-item">
+            <h4>🔧 تعطيل حماية ويندوز 11</h4>
+            <iframe 
+              width="100%" 
+              height="280" 
+              src="https://www.youtube.com/embed/2vS5i9JIIBM" 
+              title="تعطيل حماية ويندوز 11" 
+              frameborder="0" 
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+            <p>شرح مفصل لتعطيل حماية ويندوز ديفندر في ويندوز 11 مع توضيح الاختلافات الجديدة في الواجهة والإعدادات المحدثة.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="errors" role="tabpanel" aria-labelledby="errors-tab">
+        <h3>⚠️ أخطاء شائعة وحلولها</h3>
+        <div class="video-grid">
+          <div class="video-item">
+            <h4>🔧 حل المشاكل الشائعة</h4>
+            <iframe 
+              width="100%" 
+              height="250" 
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+              title="حل المشاكل الشائعة" 
+              frameborder="0" 
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+            <p>فيديو شامل يشرح كيفية حل الأخطاء الأكثر انتشارًا التي قد تواجهها أثناء استخدام منتجاتنا، مع خطوات مفصلة وواضحة.</p>
+          </div>
+          
+          <div class="video-item">
+            <h4>🛠️ استكشاف الأخطاء والإصلاح</h4>
+            <iframe 
+              width="100%" 
+              height="250" 
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+              title="استكشاف الأخطاء والإصلاح" 
+              frameborder="0" 
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+            <p>دليل متقدم لاستكشاف وإصلاح المشاكل التقنية المعقدة، مع نصائح من الخبراء وحلول مجربة.</p>
+          </div>
+          
+          <div class="video-item">
+            <h4>💡 نصائح لتجنب المشاكل</h4>
+            <iframe 
+              width="100%" 
+              height="250" 
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+              title="نصائح لتجنب المشاكل" 
+              frameborder="0" 
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+            <p>نصائح وإرشادات مهمة لتجنب حدوث المشاكل من البداية، مع أفضل الممارسات للاستخدام الآمن.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="discord" role="tabpanel" aria-labelledby="discord-tab">
+        <h3>💬 انضم إلينا في دسكورد</h3>
+        <p style="text-align: center; font-size: 1.4rem; margin-bottom: 35px; color: var(--text-secondary); line-height: 1.8;">
+          🌟 يمكنك الانضمام إلى سيرفر الدسكورد الخاص بنا للتواصل المباشر والحصول على الدعم الفوري من فريقنا المتخصص. 
+          ستجد مجتمعاً نشطاً من المستخدمين والخبراء جاهزين لمساعدتك في أي وقت.
+        </p>
+        
+        <a href="https://discord.gg/R56" target="_blank" rel="noopener noreferrer" class="download-link" aria-label="انضم إلى سيرفر دسكورد">
+          🚀 الدخول إلى دسكورد
+        </a>
+        
+        <div class="video-item" style="margin-top: 50px; max-width: 700px; margin-left: auto; margin-right: auto;">
+          <h4>📖 شرح استخدام دسكورد للمبتدئين</h4>
+          <iframe 
+            width="100%" 
+            height="300" 
+            src="https://www.youtube.com/embed/mOoQE2S1uLA" 
+            title="شرح استخدام دسكورد للمبتدئين" 
+            frameborder="0" 
+            allowfullscreen
+            loading="lazy">
+          </iframe>
+          <p>دليل شامل لاستخدام دسكورد للمبتدئين، يشرح كيفية التسجيل والانضمام للسيرفرات والتفاعل مع المجتمع بطريقة سهلة ومفهومة.</p>
+        </div>
+        
+        <div style="margin-top: 40px; padding: 25px; background: rgba(255, 0, 0, 0.1); border-radius: 15px; border: 1px solid rgba(255, 0, 0, 0.2);">
+          <h4 style="color: var(--primary-red); margin-bottom: 15px; text-align: center;">🎯 مميزات سيرفر دسكورد</h4>
+          <ul style="list-style: none; padding: 0; color: var(--text-secondary);">
+            <li style="margin-bottom: 10px; padding-right: 20px;">⚡ دعم فوري على مدار الساعة</li>
+            <li style="margin-bottom: 10px; padding-right: 20px;">👥 مجتمع نشط ومتفاعل</li>
+            <li style="margin-bottom: 10px; padding-right: 20px;">📢 إعلانات التحديثات الجديدة</li>
+            <li style="margin-bottom: 10px; padding-right: 20px;">🛠️ قنوات مخصصة للدعم التقني</li>
+            <li style="margin-bottom: 10px; padding-right: 20px;">🎉 فعاليات ومسابقات حصرية</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Global variables
+    const elements = {
+      input: document.getElementById('orderNumber'),
+      msg: document.getElementById('message'),
+      tabsSection: document.getElementById('tabsSection'),
+      tabButtons: document.querySelectorAll('.tab-btn'),
+      tabContents: document.querySelectorAll('.tab-content'),
+      orderModal: document.getElementById('orderModal'),
+      orderBtn: document.getElementById('orderBtn'),
+      closeModal: document.getElementById('closeModal'),
+      tutorialsBtn: document.getElementById('tutorialsBtn'),
+      header: document.getElementById('header'),
+      loading: document.getElementById('loading'),
+      progressBar: document.getElementById('progressBar'),
+      toast: document.getElementById('toast'),
+      menuToggle: document.getElementById('menuToggle'),
+      navMenu: document.getElementById('navMenu')
+    };
+
+    // Loading screen
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        elements.loading.classList.add('hidden');
+      }, 800);
+    });
+
+    // Progress bar on scroll
+    window.addEventListener('scroll', () => {
+      const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+      elements.progressBar.style.width = `${scrolled}%`;
+      
+      // Header scroll effect
+      if (window.scrollY > 50) {
+        elements.header.classList.add('scrolled');
+      } else {
+        elements.header.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile menu toggle
+    elements.menuToggle.addEventListener('click', () => {
+      elements.menuToggle.classList.toggle('active');
+      elements.navMenu.classList.toggle('active');
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!elements.menuToggle.contains(e.target) && !elements.navMenu.contains(e.target)) {
+        elements.menuToggle.classList.remove('active');
+        elements.navMenu.classList.remove('active');
+      }
+    });
+
+    // Toast notification system
+    function showToast(message, type = 'info', duration = 3000) {
+      elements.toast.textContent = message;
+      elements.toast.className = `toast show ${type}`;
+      
+      setTimeout(() => {
+        elements.toast.classList.remove('show');
+      }, duration);
+    }
+
+    // Tutorials button functionality
+    elements.tutorialsBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      showTabsSection();
+      
+      // Close mobile menu if open
+      elements.menuToggle.classList.remove('active');
+      elements.navMenu.classList.remove('active');
+      
+      // Smooth scroll to tabs section
+      setTimeout(() => {
+        elements.tabsSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+      
+      // Activate tutorials tab
+      activateTab('tutorials');
+      showToast('تم فتح قسم الشروحات بنجاح!', 'success');
+    });
+
+    // Modal functionality
+    function openModal() {
+      elements.orderModal.classList.add('show');
+      elements.orderModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      
+      setTimeout(() => {
+        elements.input.focus();
+      }, 300);
+    }
+
+    function closeModalFunc() {
+      elements.orderModal.classList.remove('show');
+      elements.orderModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      elements.input.value = '';
+      hideMessage();
+    }
+
+    elements.orderBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal();
+      // Close mobile menu if open
+      elements.menuToggle.classList.remove('active');
+      elements.navMenu.classList.remove('active');
+    });
+
+    elements.closeModal.addEventListener('click', closeModalFunc);
+
+    elements.orderModal.addEventListener('click', (e) => {
+      if (e.target === elements.orderModal) {
+        closeModalFunc();
+      }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (elements.orderModal.classList.contains('show')) {
+          closeModalFunc();
+        }
+        // Close mobile menu
+        elements.menuToggle.classList.remove('active');
+        elements.navMenu.classList.remove('active');
+      }
+    });
+
+    // Message functions
+    function showMessage(text, type = 'info') {
+      elements.msg.textContent = text;
+      elements.msg.className = `modal-message show ${type}`;
+    }
+
+    function hideMessage() {
+      elements.msg.classList.remove('show');
+      setTimeout(() => {
+        elements.msg.textContent = '';
+        elements.msg.className = 'modal-message';
+      }, 300);
+    }
+
+    // Tabs functionality
+    function showTabsSection() {
+      elements.tabsSection.classList.add('visible');
+    }
+
+    function hideTabsSection() {
+      elements.tabsSection.classList.remove('visible');
+    }
+
+    function activateTab(targetTab) {
+      // Remove active class from all buttons and contents
+      elements.tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+      });
+      elements.tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Add active class to target button and content
+      const targetButton = document.querySelector(`[data-tab="${targetTab}"]`);
+      const targetContent = document.getElementById(targetTab);
+      
+      if (targetButton && targetContent) {
+        targetButton.classList.add('active');
+        targetButton.setAttribute('aria-selected', 'true');
+        targetContent.classList.add('active');
+      }
+    }
+
+    // Tab button event listeners
+    elements.tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetTab = button.getAttribute('data-tab');
+        activateTab(targetTab);
+        showToast(`تم فتح قسم ${button.textContent.trim()}`, 'success');
+      });
+    });
+
+    // Enhanced input handling
+    elements.input.addEventListener('input', (e) => {
+      const order = e.target.value.trim();
+
+      // Clear previous states
+      elements.input.style.borderColor = '';
+
+      if (order.length > 0 && !/^\d*$/.test(order)) {
+        showMessage('⚠️ الرجاء إدخال أرقام فقط', 'error');
+        elements.input.style.borderColor = '#ff4444';
+        hideTabsSection();
+        return;
+      }
+
+      if (order.length === 0) {
+        hideMessage();
+        hideTabsSection();
+        return;
+      }
+
+      if (order.length < 9) {
+        showMessage(`🔢 ${order.length} اكتب رقم الطلب كامل`, 'info');
+        hideTabsSection();
+        return;
+      }
+
+      if (/^\d{9}$/.test(order)) {
+        // Simulate file download
+        downloadFile('wooferr56.7z');
+      } else {
+        showMessage('❌ الرجاء إدخال رقم طلب صحيح مكون من 9 أرقام', 'error');
+        hideTabsSection();
+      }
+    });
+
+    // Enhanced download function
+    function downloadFile(fileName) {
+      try {
+        // Create and trigger download
+        const a = document.createElement('a');
+        a.href = fileName;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Success feedback
+        showMessage(`✅ تم بدء تحميل الملف "${fileName}" بنجاح!`, 'success');
+        showToast(`تم تحميل ${fileName} بنجاح!`, 'success', 4000);
+        
+        // Visual success effect
+        elements.input.style.borderColor = '#00ff00';
+        elements.input.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.3)';
+        
+        setTimeout(() => {
+          elements.input.style.borderColor = '';
+          elements.input.style.boxShadow = '';
+          closeModalFunc();
+          showTabsSection();
+          
+          // Auto-scroll to tutorials
+          setTimeout(() => {
+            elements.tabsSection.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }, 500);
+        }, 2000);
+        
+      } catch (error) {
+        console.error('Download failed:', error);
+        showMessage('❌ حدث خطأ أثناء التحميل، الرجاء المحاولة مرة أخرى', 'error');
+        showToast('فشل في التحميل، الرجاء المحاولة مرة أخرى', 'error');
+      }
+    }
+
+    // Intersection Observer for animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    // Observe elements for animation
+    document.querySelectorAll('.video-item').forEach(item => {
+      observer.observe(item);
+    });
+
+    // Enhanced error handling
+    window.addEventListener('error', (e) => {
+      console.error('Global error:', e.error);
+      showToast('حدث خطأ غير متوقع، الرجاء تحديث الصفحة', 'error', 5000);
+    });
+
+    // Prevent context menu on production (optional security measure)
+    if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      document.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+
+    // Auto-hide loading screen fallback
+    setTimeout(() => {
+      elements.loading.classList.add('hidden');
+    }, 3000);
+
+    // Service Worker registration (for future PWA features)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => console.log('SW registered'))
+          .catch(error => console.log('SW registration failed'));
+      });
+    }
+  </script>
+</body>
+</html>
